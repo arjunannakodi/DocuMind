@@ -1,0 +1,9 @@
+[server]
+# Exclude site-packages from Streamlit's file watcher.
+# This silences the flood of torchvision/transformers warnings in the terminal
+# without affecting hot-reload for your own project files.
+fileWatcherType = "poll"
+
+[logger]
+# Suppress noisy INFO-level watcher messages; keep WARNING and above.
+level = "warning"

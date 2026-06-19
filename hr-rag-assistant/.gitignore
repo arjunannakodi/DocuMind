@@ -1,0 +1,22 @@
+# Python cache files
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Environment variables
+.env
+
+# ChromaDB vector store
+chroma_db/
+
+# Data folder (uploaded PDFs)
+data/sample_hr_docs/*.pdf
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Virtual environment
+venv/
+env/
