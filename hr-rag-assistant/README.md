@@ -1,78 +1,124 @@
-# 🏢 The Intelligent HR Policy & Payroll Assistant (RAG System)
+# 📄 DocuMind — Agentic Document Intelligence
+### Ask anything about your documents. Get cited answers.
 
-This is a production-ready Retrieval-Augmented Generation (RAG) system built with **Streamlit**, **PyMuPDF**, **LangChain**, **SentenceTransformers**, **ChromaDB**, and **Google Gemini 1.5 Flash**.
-
-It allows employees to ask questions about company HR policies, medical leaves, travel policies, and gratuity calculations, returning answers **only** when supported by uploaded corporate PDF manuals.
+> Powered by Groq LLaMA 3.1 · ChromaDB · Agentic RAG
 
 ---
 
-## 🎯 Architecture Diagram
+## 🧠 What is DocuMind?
 
-```mermaid
-graph TD
-    A[Upload HR PDFs] --> B[PDF Extractor: PyMuPDF]
-    B --> C[Chunker: RecursiveCharacterSplitter]
-    C --> D[Embedder: SentenceTransformer]
-    D --> E[Vector DB: ChromaDB]
-    
-    F[User Question] --> G[Embedder]
-    G --> H[ChromaDB Similarity Search]
-    H --> I{Similarity Score >= 0.4?}
-    I -- No --> J[Hallucination Guard: Fallback Message]
-    I -- Yes --> K[Gemini 1.5 Flash Generation]
-    K --> L[Streamlit UI Display with Source Citations]
+DocuMind is a universal document Q&A assistant built 
+on Agentic RAG architecture. Upload any PDF and ask 
+questions in natural language — the AI agent searches 
+your documents, reflects on results, rewrites queries 
+if needed, and delivers precise cited answers.
+
+It never guesses. It only answers from your documents.
+
+---
+
+## 🏗️ Architecture
+
+### Indexing Pipeline
+[PDF Upload] → [PyMuPDF Extractor] → [Text Chunker]
+→ [SentenceTransformer Embedder] → [ChromaDB]
+
+### Agentic Query Pipeline
+[Question] → [Embed] → [ChromaDB Search]
+→ [Score Check]
+  → Strong match: Generate answer
+  → Weak match: Groq rewrites query → Search again
+→ [Combine Results] → [Groq LLaMA generates answer]
+→ [Answer + Source + Page Citations]
+
+---
+
+## 🛠️ Tech Stack
+
+| Layer | Technology |
+|---|---|
+| UI | Streamlit |
+| PDF Reading | PyMuPDF |
+| Text Splitting | LangChain RecursiveCharacterTextSplitter |
+| Embeddings | SentenceTransformer all-MiniLM-L6-v2 (local) |
+| Vector DB | ChromaDB (local persistent) |
+| LLM | Groq LLaMA 3.1 8B Instant (free) |
+| Agent Layer | Custom Agentic RAG loop |
+
+---
+
+## ⚡ Quick Start
+
+### 1. Install
+```
+pip install -r requirements.txt
 ```
 
----
+### 2. Add API Key
+```
+cp .env.example .env
+# Add GROQ_API_KEY — free at https://console.groq.com
+```
 
-## 🚀 Getting Started
-
-### 📋 Prerequisites
-- Python 3.9+ installed
-- Google Gemini API key (from [Google AI Studio](https://aistudio.google.com/))
-
-### 🛠️ Installation
-
-1. Navigate to the project directory:
-   ```bash
-   cd hr-rag-assistant
-   ```
-
-2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-
-### ⚙️ Environment Configuration
-
-1. Copy the `.env.example` file to `.env`:
-   ```bash
-   cp .env.example .env
-   ```
-
-2. Open the `.env` file and insert your Google Gemini API key:
-   ```env
-   GEMINI_API_KEY=AIzaSy...your_actual_key_here...
-   ```
-
-### 💻 Running the Application
-
-Launch the Streamlit web interface using the following command:
-```bash
+### 3. Run
+```
 streamlit run app.py
 ```
 
 ---
 
-## 📂 Project Structure
+## 📁 Project Structure
 
-- `app.py`: Standard Streamlit graphical interface with customized glassmorphic panels and chat bubbles.
-- `rag_engine/`: Package containing core backend processing components.
-  - `pdf_extractor.py`: Extracts clean text from target PDFs page-by-page using PyMuPDF.
-  - `chunker.py`: Splits extracted pages into overlaps using LangChain's RecursiveTextSplitter.
-  - `embedder.py`: Handles vector conversions locally using the `all-MiniLM-L6-v2` transformer model.
-  - `vector_store.py`: Client connection and query operations for the local Chroma database.
-  - `llm_client.py`: System prompt compilation and execution of generation requests against Gemini API.
-- `data/sample_hr_docs/`: Repository folder where source PDFs are stored during execution.
-- `chroma_db/`: Directory managed by ChromaDB containing index and vectors.
-- `.env`: Location for local configuration and Gemini API Key secrets (ignored by Git).
+```
+documind/
+├── app.py                  # Streamlit UI
+├── requirements.txt
+├── .env
+├── .gitignore
+├── rag_engine/
+│   ├── __init__.py
+│   ├── agent.py            # Agentic RAG loop
+│   ├── groq_client.py      # Groq LLM + query rewriter
+│   ├── chunker.py
+│   ├── embedder.py
+│   ├── pdf_extractor.py
+│   └── vector_store.py
+└── data/
+    └── sample_hr_docs/
+```
+
+---
+
+## 🛡️ Hallucination Prevention
+
+- Similarity threshold gate (score < 0.15 → blocked)
+- Agent retry with rewritten query on weak matches
+- Prompt constraint: LLM must cite source or say not found
+- Source + page number shown for every answer
+
+---
+
+## 🤖 Agentic RAG vs Normal RAG
+
+```
+Normal RAG:  Search once → Answer
+Agentic RAG: Search → Evaluate → Rewrite if weak
+             → Search again → Combine → Better answer
+```
+
+The agent autonomously decides how many search 
+iterations are needed before generating a final answer.
+
+---
+
+## 📄 Supported Documents
+
+Any text-based PDF: HR policies, payroll manuals,
+research papers, legal contracts, product manuals,
+financial reports, resumes, study notes.
+
+---
+
+Built as a Generative AI portfolio project.
+Demonstrates Agentic RAG, hallucination prevention,
+and production-ready modular Python architecture.
