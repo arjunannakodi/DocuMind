@@ -9,18 +9,16 @@ import chromadb
 from rag_engine.embedder import embed_texts
 
 COLLECTION_NAME = "hr_policies"
-DB_PATH = "./chroma_db"
 
 def get_chroma_client():
     """
-    Creates and returns a persistent ChromaDB client.
+    Returns an in-memory ChromaDB client stored in Streamlit session state.
+    This avoids any disk writes, making it compatible with ephemeral environments
+    like Streamlit Community Cloud.
     """
-    try:
-        return chromadb.PersistentClient(path=DB_PATH)
-    except Exception as e:
-        error_msg = f"Failed to initialize ChromaDB client at {DB_PATH}: {str(e)}"
-        st.error(error_msg)
-        raise RuntimeError(error_msg) from e
+    if "_chroma_client" not in st.session_state:
+        st.session_state["_chroma_client"] = chromadb.EphemeralClient()
+    return st.session_state["_chroma_client"]
 
 def collection_exists() -> bool:
     """
